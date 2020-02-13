@@ -8,15 +8,16 @@ def crear_ECCKey():
   key = ECC.generate(curve='P-256')
   return key
 
-def guardar_ECCKey_Privada(fichero, key, password):
+def guardar_ECCKey_Privada(fichero, key):
   f = open(fichero + '.pem','wt')
-  priv_key = key.export_key(format='PEM', passphare=password, use_pkcs8=True, protection='PBKDF2WithHMAC-SHA1AndAES128-CBC')
+  priv_key = key.export_key(format='PEM', protection='PBKDF2WithHMAC-SHA1AndAES128-CBC')
   f.write(priv_key)
   f.close()
 
-def cargar_ECCKey_Privada(fichero, password):
-  pub_key = open(fichero + '.pem','rt').read()
-  key = ECC.import_key(pub_key, passphrase=password)
+def cargar_ECCKey_Privada(fichero):
+  """breakpoint()"""
+  priv_key = open(fichero + '.pem','rt').read()
+  key = ECC.import_key(priv_key)
   return key
 
 def guardar_ECCKey_Publica(fichero, key):
@@ -39,13 +40,13 @@ def cargar_ECCKey_Publica(fichero):
 #return cadena
 
 def firmarECC_PSS(texto, key_private):
-  h = SHA256.new(texto)
+  h = SHA256.new(texto.encode())
   signer = DSS.new(key_private, 'fips-186-3')
   signature = signer.sign(h)
   return signature
 
 def comprobarECC_PSS(texto, firma, key_public):
-  h = SHA256.new(texto)
+  h = SHA256.new(texto.encode())
   verifier = DSS.new(key_public, 'fips-186-3')
   try:
     verifier.verify(h, firma)
